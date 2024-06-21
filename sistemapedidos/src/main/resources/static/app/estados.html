@@ -69,7 +69,7 @@
     function preencher (id_estado, nome_estado){
         console.log(id_estado, nome_estado);
         document.getElementById("tx_id").value = id_estado;
-        document.getElementById("tx_nome").value = nome_estado;
+        document.getElementById("tx_nome").value = decodeURI(nome_estado);
     }
     function carregar(){
         var xhttp = new XMLHttpRequest();
@@ -79,7 +79,7 @@
             var conteudo ="<tr> <th>ID</th> <th>Nome</th> <th>Ações</th> </tr>";        
             for(var estado of dados){
                 conteudo += "<tr> <td>" + estado.id + " </td> <td>"+ estado.nome + "</td>";
-                conteudo += "<td> <button type='button' onclick=preencher('"+ estado.id +"','"+ estado.nome +"')>Alterar</button>  ";    
+                conteudo += `<td> <button type='button' onclick=preencher('${estado.id}','${encodeURI(estado.nome)}')>Alterar</button>`;    
                 conteudo += "<button type='button' onclick='excluir("+ estado.id +")'>Excluir</button></td></tr>";
             }
             document.getElementById("listagem").innerHTML = conteudo;
