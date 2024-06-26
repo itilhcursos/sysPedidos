@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset='utf-8'>
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
@@ -8,9 +9,106 @@
     <link rel='stylesheet' type='text/css' media='screen' href='main.css'>
     <script src='main.js'></script>
 </head>
+
 <body>
-    <h1>
-        Listagem de Municípios
-    </h1>
+    <h1>Listagem de Municípios</h1>
+    <form>
+        <label>ID: </label>
+        <input type="text" id="tx_id" disabled="disabled" readonly="readonly" />
+        <br>
+        <br>
+        <label> NOME: </label>
+        <input type="text" id="tx_nome" />
+        <br>
+        <label> ESTADO: </label>
+        <select id="id_estado">
+            <option value="1">Acre</option>
+            <option value="2">Alagoas</option>
+        </select>
+        <br>
+        <br>
+        <label> ENTREGA: </label>
+        <input type="checkbox" id="bo_ativo" value="Sim">
+        <br>
+        <button type="button" onclick="" carregar()>Carregar Municípios</button>
+    </form>
+    <table border="1" id="listagem"></table>
 </body>
+
+<script>
+    function limparFormulario() {
+        document.getElementById("tx_id").value = "";
+        document.getElementById("tx_nome").value = "";
+        document.getElementById("id_estado").selectedIndex = 0; // Volta para a primeira opção
+        document.getElementById("bo_ativo").checked = false;
+    }
+
+    function criar() {
+        console.log("Criar novo município!!!!");
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                alert("Município criado com sucesso");
+                carregar();
+                limparFormulario();
+            }
+        };
+        var estadoSelecionado = document.getElementById("id_estado").value;
+        var nomeMunicipio = document.getElementById("tx_nome").value;
+        var entrega = document.getElementById("bo_ativo").checked;
+
+        xhttp.open("POST", "/municipio");
+        xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+        xhttp.send(JSON.stringify({
+            id: null, nome: document.getElementById("tx_nome"), entrega: entrega
+        }));
+    }
+
+    function carregar() {
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                console.log("SUCESSO");
+                console.log(this.responseText);
+                var dados = JSON.parse(thi.responseText);
+                console.log(dados);
+                var conteudo = "<tr> <th>ID</th> <th>Nome</th> <th>Ações</th> </tr>";
+                for (var municipio of dados) {
+                    conteudo += "<tr><td>" + municipio.id + "</td> <td>" + municipio.nome + " </td> <td> " +
+                        municipio.estado.nome + " </td> <td> " + (municipio.entrega ? "Sim" : "Não") + " </td> </tr>";
+                    conteudo += "<td>";
+                    conteudo += "<button type='button' onclick='preencherFormulario(" + municipio.id + ", \"" + municipio.nome + "\", \"" + municipio.estado.id + "\", " + municipio.entrega + ")'>Alterar</button>";
+                    conteudo += "<button type='button' onclick='excluir(" + municipio.id + ")'>Excluir</button>";
+                    conteudo += "</td>";
+                    conteudo += "</tr>";
+                }
+                document.getElementById("listagem").innerHTML = conteudo;
+            }
+        };
+        xhttp.open("GET", "/municipios");
+        xhttp.send();
+    }
+    function excluir(idMunicipio) {
+        console.log("Excluir município com ID: " + idMunicipio);
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                alert("Município excluído com sucesso");
+                carregar();
+            }
+        };
+        xhttp.open("DELETE", "/municipio/" + idMunicipio);
+        xhttp.send();
+    }
+
+    function preencherFormulario(id, nome, idEstado, entrega) {
+        document.getElementById("tx_id").value = id;
+        document.getElementById("tx_nome").value = nome;
+        document.getElementById("id_estado").value = idEstado;
+        document.getElementById("bo_ativo").checked = entrega;
+    }
+    carregar();
+
+</script>
+
 </html>
